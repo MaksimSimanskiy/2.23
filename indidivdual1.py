@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from threading import Thread
+from threading import Thread, Lock
 import math
 
 """
@@ -10,10 +10,8 @@ import math
 рядов.
 """
 
-
-def func_s(n, x=-0.7):
-    result = (n + 1) * math.pow(x, n)
-    return result
+lock = Lock()
+stop_thread = False
 
 
 def func_y(x=-0.7):
@@ -21,22 +19,36 @@ def func_y(x=-0.7):
     return result
 
 
-def summ(i, thead, flag):
+def summ_1():
+    x = -0.7
     pre = 0
     s = 0
     n = 0
     e = 1e-07
-    curr = func_s(n)
+    curr = (n + 1) * math.pow(x, n)
     s += curr
     n += 1
-    print(f"Цикл № {i}. Поток {thead}")
     while abs(curr - pre) > e:
         pre = curr
-        curr = func_s(n)
+        curr = (n + 1) * math.pow(x, n)
         n += 1
         s += curr
-        if flag is True:
-            print(f"Результат суммы бесконечного ряда {s}")
+    return s
+
+
+def summ_2():
+    pre = 0
+    s = 0
+    n = 0
+    e = 1e-07
+    curr = math.pow(0.35, 2 * n + 1) / (2 * n + 1)
+    s += curr
+    n += 1
+    while abs(curr - pre) > e:
+        pre = curr
+        curr = math.pow(0.35, 2 * n + 1) / (2 * n + 1)
+        n += 1
+        s += curr
     return s
 
 
@@ -45,23 +57,11 @@ def compare(x, y):
     print(f"Результат сравнения {result}")
 
 
-def sequential(calc, thead):
-    print(f"Запускаем поток № {thead}")
-    for i in range(calc):
-        summ(i, thead, True)
-    print(f"{calc} циклов вычислений закончены. Поток № {thead}")
-
-
-def threaded(theads, calc):
-    threads = []
-    for thead in range(theads):
-        t = Thread(target=sequential, args=(calc, thead), daemon=True)
-        threads.append(t)
-        t.start()
-    for t in threads:
-        t.join()
-
-
 if __name__ == '__main__':
-    threaded(4, 20)
-    compare(summ(0, 0, False), func_y())
+    th1 = Thread(target=compare(summ_1(), func_y()), daemon=True)
+    th1.start()
+    th2 = Thread(target=compare(summ_2(), func_y()), daemon=True)
+    th2.start()
+    lock.acquire()
+    stop_thread = True
+    lock.release()
