@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from threading import Thread, Lock
+from threading import Thread
 import math
 
 """
@@ -13,8 +13,13 @@ import math
 CONST_PRECISION = 1e-07
 
 
-def func_y(x=-0.7):
+def func_x(x=-0.7):
     result = 1/(math.pow((1 - x), 2))
+    return result
+
+
+def func_y(x=-0.35):
+    result = 1/math.log10(math.sqrt((1 + x) / (1 - x)))
     return result
 
 
@@ -55,10 +60,9 @@ def compare(x, y):
 
 
 if __name__ == '__main__':
-    th1 = Thread(target=compare(summ_1(), func_y()))
-    th1.start()
+    th1 = Thread(target=compare(summ_1(), func_x()))
     th2 = Thread(target=compare(summ_2(), func_y()))
+    th1.start()
     th2.start()
     th1.join()
     th2.join()
-    
