@@ -18,7 +18,7 @@ def func_x(x=-0.7):
     return result
 
 
-def func_y(x=-0.35):
+def func_y(x=0.35):
     result = 1/math.log10(math.sqrt((1 + x) / (1 - x)))
     return result
 
